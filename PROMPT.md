@@ -1,0 +1,14 @@
+**Prompt 1: Setup UI Dasar dan State Management**
+> "Buatkan proyek web menggunakan Next.js dan Tailwind CSS. Buat antarmuka (UI) minimalis yang terpusat di tengah layar. Di bagian atas, buat menu pengaturan sederhana untuk memilih durasi waktu (15s, 30s, 60s) dan bahasa (Indonesia, English). Di tengah, buat area teks pengetikan. Teks harus menggunakan font monospace. Siapkan state di React untuk menyimpan daftar kata yang akan diketik, durasi waktu yang dipilih, dan status permainan (idle, typing, finished)."
+
+**Prompt 2: Logika Mesin Pengetikan (Huruf demi Huruf)**
+> "Fokus pada area teks pengetikan. Saya ingin deteksi pengetikan dilakukan per HURUF (karakter), bukan per kata. 1. Tampilkan teks sebagai deretan elemen `<span>` untuk setiap huruf. 2. Tangkap event keystroke secara global saat aplikasi aktif. 3. Berikan styling visual: huruf yang belum diketik berwarna abu-abu redup, huruf yang benar berwarna terang/solid, dan huruf yang salah berwarna merah. 4. Tambahkan kursor visual yang berkedip di bawah atau di sebelah huruf yang sedang aktif. 5. Izinkan penggunaan tombol `Backspace` untuk menghapus dan mundur ke huruf sebelumnya agar bisa diperbaiki."
+
+**Prompt 3: Sistem Timer dan Perekaman Data**
+> "Integrasikan sistem timer. Timer harus mulai menghitung mundur secara otomatis saat huruf pertama diketik. Saat timer berjalan, sembunyikan (fade out) elemen UI lain seperti menu pengaturan waktu dan bahasa agar layar bersih. Selama pengetikan, rekam data secara rahasia di background: jumlah ketukan benar, jumlah ketukan salah, huruf apa saja spesifik yang salah diketik, dan total waktu yang berjalan. Hentikan permainan dan ubah status menjadi 'finished' saat waktu habis."
+
+**Prompt 4: Kalkulasi Statistik Mendetail (WPM & Akurasi)**
+> "Buat komponen Dashboard Hasil yang muncul saat status permainan 'finished'. Kalkulasi dan tampilkan data statistik berikut: 1. WPM (Words Per Minute): Dihitung dengan rumus (Total Karakter Benar / 5) / (Waktu dalam menit). 2. Raw WPM: Dihitung dengan rumus (Total Semua Karakter yang diketik / 5) / (Waktu dalam menit). 3. Akurasi: Persentase (Karakter Benar / Total Karakter Ditekan) * 100. 4. Breakdown Karakter: Tampilkan angka (Benar / Salah / Diperbaiki). Tampilkan hasil ini dengan tipografi yang besar, rapi, dan modern."
+
+**Prompt 5: Analitik Lanjutan (Key Heatmap untuk 10 Jari)**
+> "Tambahkan fitur statistik lanjutan di Dashboard Hasil untuk menganalisis kelemahan jari pengguna. Buat 'Missed Keys Analytics'. Berdasarkan data huruf yang salah diketik (dari Prompt 3), tampilkan daftar 3 sampai 5 huruf yang paling sering salah ditekan selama sesi tersebut. Buatkan tombol 'Restart' atau Tab + Enter shortcut untuk mereset state dan memulai sesi baru dengan kata-kata yang diacak ulang."

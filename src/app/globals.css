@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-mono: var(--font-roboto-mono);
+}
+
+@layer base {
+  body {
+    @apply antialiased selection:bg-slate-700 selection:text-slate-100;
+  }
+}
