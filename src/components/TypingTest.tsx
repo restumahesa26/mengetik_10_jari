@@ -2,16 +2,10 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { getRandomWords, Language } from "@/data/words";
-import { RotateCcw, Settings2 } from "lucide-react";
+import { RotateCcw, Settings2, Home, Users } from "lucide-react";
+import MultiplayerModal from "./MultiplayerModal";
 
 type GameStatus = "idle" | "typing" | "finished";
-
-interface KeystrokeData {
-  expected: string;
-  actual: string;
-  isCorrect: boolean;
-  timeTakenMs: number;
-}
 
 export default function TypingTest() {
   // Configurations
@@ -32,9 +26,11 @@ export default function TypingTest() {
   const [incorrectKeystrokes, setIncorrectKeystrokes] = useState<number>(0);
   const [missedKeys, setMissedKeys] = useState<Record<string, number>>({});
   const [fixedKeystrokes, setFixedKeystrokes] = useState<number>(0);
+  const [showMultiplayerModal, setShowMultiplayerModal] = useState(false);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const timeLeftRef = useRef<number>(timeConfig);
+  const cursorRef = useRef<HTMLSpanElement>(null);
 
   const initGame = useCallback((customLang?: Language, customTime?: number) => {
     const targetLang = customLang ?? language;
@@ -52,6 +48,11 @@ export default function TypingTest() {
     setMissedKeys({});
     if (timerRef.current) {
       clearInterval(timerRef.current);
+    }
+
+    // Kembali ke atas saat reset
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [language, timeConfig]);
 
@@ -80,6 +81,15 @@ export default function TypingTest() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Abaikan jika sedang mengetik di input box atau modal sedang terbuka
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        showMultiplayerModal
+      ) {
+        return;
+      }
+
       if (status === "finished") {
         if (e.key === "Enter" || e.key === "Tab") {
           e.preventDefault();
@@ -141,7 +151,14 @@ export default function TypingTest() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [status, cursorIndex, words, language, initGame]);
+  }, [status, cursorIndex, words, language, initGame, showMultiplayerModal]);
+
+  // Auto-scroll kebawah ketika kata baru diload
+  useEffect(() => {
+    if (cursorRef.current && status === "typing") {
+      cursorRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [words, status]);
 
   const renderText = () => {
     return words.split("").map((char, index) => {
@@ -163,7 +180,7 @@ export default function TypingTest() {
             {char}
           </span>
           {isCursor && (
-            <span className="absolute bottom-0 left-0 w-full h-[3px] bg-sky-400 animate-pulse rounded-full" />
+            <span ref={cursorRef} className="absolute bottom-0 left-0 w-full h-[3px] bg-sky-400 animate-pulse rounded-full" />
           )}
         </span>
       );
@@ -205,6 +222,16 @@ export default function TypingTest() {
         {status !== "finished" && (
           <div className="flex gap-8 text-sm font-medium">
             <div className="flex gap-3 bg-slate-800/50 p-2 rounded-lg">
+              <button
+                onClick={() => setShowMultiplayerModal(true)}
+                className="px-4 py-1 rounded-md transition-all bg-violet-600/20 text-violet-400 hover:bg-violet-600 hover:text-white font-bold flex items-center gap-2 border border-violet-500/30 shadow-[0_0_15px_rgba(139,92,246,0.3)]"
+              >
+                <Users size={16} />
+                Multiplayer
+              </button>
+            </div>
+
+            <div className="flex gap-3 bg-slate-800/50 p-2 rounded-lg">
               {[15, 30, 60, 120].map((t) => (
                 <button
                   key={t}
@@ -241,7 +268,7 @@ export default function TypingTest() {
       <main className="w-full relative min-h-[300px] flex flex-col items-center">
         {status !== "finished" ? (
           <>
-            <div className="text-6xl font-bold text-sky-400/80 mb-8 tracking-tighter">
+            <div className="sticky top-8 z-50 text-6xl font-bold text-sky-400/80 mb-8 tracking-tighter bg-slate-900/80 backdrop-blur-md px-10 py-4 rounded-3xl border border-slate-800/50 shadow-2xl shadow-slate-900/80 transition-all duration-300">
               {timeLeft}
             </div>
             <div className="text-2xl md:text-3xl leading-relaxed tracking-wide text-justify opacity-90 select-none cursor-default max-w-full break-words">
@@ -311,16 +338,30 @@ export default function TypingTest() {
               )}
             </div>
 
-            <button
-              onClick={() => initGame()}
-              className="mt-12 bg-sky-500 hover:bg-sky-400 text-slate-900 font-bold py-4 px-10 rounded-full transition-all hover:scale-105 active:scale-95 flex items-center gap-3"
-            >
-              <RotateCcw size={20} />
-              Coba Lagi (Tab + Enter)
-            </button>
+            <div className="mt-12 flex flex-col sm:flex-row gap-4 items-center">
+              <button
+                onClick={() => initGame()}
+                className="bg-sky-500 hover:bg-sky-400 text-slate-900 font-bold py-4 px-10 rounded-full transition-all hover:scale-105 active:scale-95 flex items-center gap-3"
+              >
+                <RotateCcw size={20} />
+                Coba Lagi (Tab + Enter)
+              </button>
+
+              <button
+                onClick={() => initGame()}
+                className="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-4 px-10 rounded-full transition-all hover:scale-105 active:scale-95 flex items-center gap-3 border border-slate-700/50"
+              >
+                <Home size={20} />
+                Kembali ke Halaman Utama
+              </button>
+            </div>
           </div>
         )}
       </main>
+
+      {showMultiplayerModal && (
+        <MultiplayerModal onClose={() => setShowMultiplayerModal(false)} />
+      )}
     </div>
   );
 }
